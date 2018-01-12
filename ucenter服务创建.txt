@@ -1,0 +1,56 @@
+
+1、创建fpm的docker服务
+使用8101端口
+挂在目录到 /var/www/html
+
+docker run -it -d -v /d/wamp/www/ucenter_composer:/var/www/html -p 8101:9000 --name ucenter_fpm wanxiangcc/php-fpm:1.1 /bin/bash
+docker-php-ext-install pdo_mysql
+docker-php-ext-install mysqli
+
+启动php-fpm
+/usr/local/sbin/php-fpm
+重启php-fpm
+ps aux|grep php-fpm #查看php-fpm的master进程号
+kill -USR2 42891
+
+配置文件
+/usr/local/sbin/php-fpm.conf 修改pid
+
+php额外的配置文件都在这个目录下，可以新增一个conf
+/usr/local/sbin/php-fpm.d/ 
+
+修改docker-zz.conf 修改为后台守护进程
+
+配置项http://blog.csdn.net/crystalu3/article/details/71418755
+
+修改seaslog的配置文件
+[seaslog]
+seaslog.default_basepath = /var/log/seaslog
+seaslog.default_logger = default 
+seaslog.disting_type = 1
+seaslog.disting_by_hour = 0 
+seaslog.disting_by_day = 1
+seaslog.use_buffer = 1 
+seaslog.buffer_size = 100
+seaslog.level = 0
+
+修改/var/log/seaslog目录权限
+
+
+2、创建nginx的docker服务
+使用8102端口（具体待定）
+挂在目录到 /var/www/html
+docker run -it -d -v /d/wamp/www/ucenter_composer:/var/www/html -p 8102:80 --name ucenter_nginx --link ucenter_fpm:phpfpm nginx /bin/bash
+https
+docker run -it -d -v /d/wamp/www/ucenter_composer:/var/www/html -p 8201:80 -p 8202:443 --name ucenter_nginx_https --link ucenter_fpm:phpfpm nginx /bin/bash
+
+3、修改nginx的配置文件
+/etc/nginx/conf.d/
+
+ucenter的配置在项目目录docker下，cp到/etc/nginx/conf.d/
+#证书制作
+http://blog.csdn.net/babydavic/article/details/8442817
+
+安装vim编辑器
+apt-get update
+apt-get install vim
